@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Big Code Copier</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Big Code Copier V3</title>
 
 <style>
 *{
@@ -24,9 +24,6 @@ body{
   border-bottom:1px solid #292f3c;
   padding:18px 14px;
   text-align:center;
-  position:sticky;
-  top:0;
-  z-index:10;
 }
 
 .header h1{
@@ -34,13 +31,12 @@ body{
 }
 
 .header p{
-  color:#8992a5;
+  color:#8b94a7;
   font-size:12px;
   margin-top:6px;
 }
 
 .container{
-  width:100%;
   max-width:1100px;
   margin:auto;
   padding:14px;
@@ -49,16 +45,16 @@ body{
 .toolbar{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:9px;
+  gap:8px;
   margin-bottom:12px;
 }
 
 button{
   border:0;
   border-radius:10px;
-  padding:13px 10px;
+  padding:13px 8px;
   color:#fff;
-  font-size:14px;
+  font-size:13px;
   font-weight:bold;
   cursor:pointer;
 }
@@ -71,58 +67,46 @@ button:active{
   background:#1677ff;
 }
 
-.paste{
-  background:#673ab7;
+.part{
+  background:#008f66;
 }
 
-.select{
-  background:#343a48;
+.download{
+  background:#7b42d6;
 }
 
 .clear{
   background:#d9363e;
 }
 
-.editor-box{
+.editor{
   border:1px solid #292f3c;
   border-radius:13px;
   overflow:hidden;
-  background:#0e1117;
+  background:#0d1016;
 }
 
 .editor-head{
   height:43px;
   background:#171b24;
-  border-bottom:1px solid #292f3c;
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:0 13px;
+  border-bottom:1px solid #292f3c;
 }
 
-.editor-title{
+.title{
   color:#aeb6c6;
   font-size:12px;
   font-weight:bold;
 }
 
-.dot{
-  display:flex;
-  gap:5px;
-}
-
-.dot span{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#555d6d;
-}
-
 textarea{
-  display:block;
   width:100%;
-  height:68vh;
-  min-height:450px;
+  height:65vh;
+  min-height:430px;
+  display:block;
   resize:vertical;
   border:0;
   outline:0;
@@ -132,46 +116,61 @@ textarea{
   font-family:Consolas,Monaco,monospace;
   font-size:14px;
   line-height:1.6;
-  tab-size:2;
-}
-
-textarea::selection{
-  background:#245a9f;
 }
 
 .info{
   display:flex;
   justify-content:space-between;
-  gap:10px;
   padding:11px 2px;
   color:#8992a5;
   font-size:12px;
 }
 
 .status{
-  min-height:20px;
   text-align:center;
+  min-height:21px;
   color:#4dde83;
   font-size:13px;
   font-weight:bold;
-  margin:3px 0 8px;
+}
+
+.partbox{
+  display:none;
+  margin-top:10px;
+  padding:12px;
+  background:#11151e;
+  border:1px solid #292f3c;
+  border-radius:11px;
+}
+
+.partbox.show{
+  display:block;
+}
+
+.partinfo{
+  color:#aeb6c6;
+  font-size:12px;
+  margin-bottom:9px;
+  text-align:center;
+}
+
+.partbuttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
 }
 
 .tip{
-  color:#687184;
   text-align:center;
+  color:#697285;
   font-size:11px;
   line-height:1.5;
-  padding:5px 10px 15px;
+  padding:13px 8px;
 }
 
 @media(min-width:700px){
   .toolbar{
     grid-template-columns:repeat(4,1fr);
-  }
-
-  textarea{
-    font-size:15px;
   }
 }
 </style>
@@ -181,7 +180,7 @@ textarea::selection{
 
 <header class="header">
   <h1>📋 Big Code Copier</h1>
-  <p>Paste large code • Copy everything • Fast & simple</p>
+  <p>Large Code • Fast Copy • Download</p>
 </header>
 
 <main class="container">
@@ -192,12 +191,12 @@ textarea::selection{
       📋 COPY ALL
     </button>
 
-    <button class="paste" onclick="pasteCode()">
-      📥 PASTE
+    <button class="part" onclick="prepareParts()">
+      📦 COPY IN PARTS
     </button>
 
-    <button class="select" onclick="selectAllCode()">
-      ☑ SELECT ALL
+    <button class="download" onclick="downloadCode()">
+      💾 DOWNLOAD
     </button>
 
     <button class="clear" onclick="clearCode()">
@@ -206,20 +205,10 @@ textarea::selection{
 
   </div>
 
-  <section class="editor-box">
+  <div class="editor">
 
     <div class="editor-head">
-
-      <div class="editor-title">
-        CODE EDITOR
-      </div>
-
-      <div class="dot">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
+      <div class="title">CODE EDITOR</div>
     </div>
 
     <textarea
@@ -232,35 +221,69 @@ textarea::selection{
       oninput="updateStats()"
     ></textarea>
 
-  </section>
+  </div>
 
   <div class="info">
-
-    <span>
-      Lines: <b id="lines">0</b>
-    </span>
-
-    <span>
-      Characters: <b id="chars">0</b>
-    </span>
-
+    <span>Lines: <b id="lines">0</b></span>
+    <span>Characters: <b id="chars">0</b></span>
   </div>
 
   <div id="status" class="status"></div>
 
+  <div id="partbox" class="partbox">
+
+    <div id="partinfo" class="partinfo">
+      Parts are ready
+    </div>
+
+    <div class="partbuttons">
+
+      <button class="copy" onclick="copyCurrentPart()">
+        📋 COPY PART
+      </button>
+
+      <button class="part" onclick="nextPart()">
+        ➡️ NEXT PART
+      </button>
+
+    </div>
+
+  </div>
+
   <div class="tip">
-    Your code stays in this page unless you copy or save it yourself.
+    Very large code can be copied in parts or downloaded as a TXT file.
   </div>
 
 </main>
 
 <script>
 
-const editor = document.getElementById("code");
-const lines = document.getElementById("lines");
-const chars = document.getElementById("chars");
-const statusBox = document.getElementById("status");
+const editor =
+  document.getElementById("code");
 
+const lines =
+  document.getElementById("lines");
+
+const chars =
+  document.getElementById("chars");
+
+const statusBox =
+  document.getElementById("status");
+
+const partBox =
+  document.getElementById("partbox");
+
+const partInfo =
+  document.getElementById("partinfo");
+
+
+let parts = [];
+let currentPart = 0;
+
+
+/* -------------------------
+   STATS
+------------------------- */
 
 function updateStats(){
 
@@ -269,14 +292,22 @@ function updateStats(){
   chars.textContent = text.length;
 
   if(text.length === 0){
+
     lines.textContent = 0;
+
   }else{
+
     lines.textContent =
       text.split(/\r\n|\r|\n/).length;
+
   }
 
 }
 
+
+/* -------------------------
+   COPY ALL
+------------------------- */
 
 async function copyAll(){
 
@@ -289,33 +320,27 @@ async function copyAll(){
     return;
   }
 
-
   try{
 
     await navigator.clipboard.writeText(text);
 
-    showStatus(
-      "✓ ALL CODE COPIED"
-    );
+    showStatus("✓ ALL CODE COPIED");
 
   }catch(error){
 
     editor.focus();
-
     editor.select();
 
     try{
 
       document.execCommand("copy");
 
-      showStatus(
-        "✓ ALL CODE COPIED"
-      );
+      showStatus("✓ ALL CODE COPIED");
 
     }catch(e){
 
       showStatus(
-        "Copy failed — use SELECT ALL"
+        "Copy failed — use COPY IN PARTS"
       );
 
     }
@@ -325,68 +350,242 @@ async function copyAll(){
 }
 
 
-async function pasteCode(){
+/* -------------------------
+   PREPARE PARTS
+------------------------- */
 
-  try{
+function prepareParts(){
 
-    const text =
-      await navigator.clipboard.readText();
+  const text = editor.value;
 
-    if(!text){
+  if(!text){
 
-      showStatus("Clipboard is empty");
+    showStatus("Nothing to split");
 
-      return;
-    }
+    return;
+  }
 
-    editor.value = text;
+  /*
+    Each part is 50000 characters.
+    This helps when the browser clipboard
+    cannot handle the complete code.
+  */
 
-    updateStats();
+  const size = 50000;
 
-    showStatus(
-      "✓ CODE PASTED"
+  parts = [];
+
+  for(
+    let i = 0;
+    i < text.length;
+    i += size
+  ){
+
+    parts.push(
+      text.slice(i,i + size)
     );
-
-  }catch(error){
-
-    showStatus(
-      "Tap the editor and use Paste"
-    );
-
-    editor.focus();
 
   }
 
-}
+  currentPart = 0;
 
+  partBox.classList.add("show");
 
-function selectAllCode(){
-
-  editor.focus();
-
-  editor.select();
+  updatePartInfo();
 
   showStatus(
-    "✓ ALL CODE SELECTED"
+    "✓ Code divided into " +
+    parts.length +
+    " parts"
   );
 
 }
 
 
-function clearCode(){
+/* -------------------------
+   PART INFO
+------------------------- */
 
-  if(!editor.value){
+function updatePartInfo(){
 
-    showStatus("Already empty");
+  if(!parts.length){
+
+    partInfo.textContent =
+      "No parts";
 
     return;
   }
 
+  partInfo.textContent =
+    "Part " +
+    (currentPart + 1) +
+    " of " +
+    parts.length +
+    " • " +
+    parts[currentPart].length +
+    " characters";
+
+}
+
+
+/* -------------------------
+   COPY CURRENT PART
+------------------------- */
+
+async function copyCurrentPart(){
+
+  if(!parts.length){
+
+    prepareParts();
+
+    return;
+  }
+
+  const text =
+    parts[currentPart];
+
+  try{
+
+    await navigator.clipboard.writeText(text);
+
+    showStatus(
+      "✓ PART " +
+      (currentPart + 1) +
+      " COPIED"
+    );
+
+  }catch(error){
+
+    const temp =
+      document.createElement("textarea");
+
+    temp.value = text;
+
+    document.body.appendChild(temp);
+
+    temp.select();
+
+    try{
+
+      document.execCommand("copy");
+
+      showStatus(
+        "✓ PART " +
+        (currentPart + 1) +
+        " COPIED"
+      );
+
+    }catch(e){
+
+      showStatus(
+        "Copy failed"
+      );
+
+    }
+
+    temp.remove();
+
+  }
+
+}
+
+
+/* -------------------------
+   NEXT PART
+------------------------- */
+
+function nextPart(){
+
+  if(!parts.length){
+
+    prepareParts();
+
+    return;
+  }
+
+  if(currentPart >= parts.length - 1){
+
+    showStatus(
+      "✓ This is the last part"
+    );
+
+    return;
+  }
+
+  currentPart++;
+
+  updatePartInfo();
+
+  showStatus(
+    "Ready: Part " +
+    (currentPart + 1)
+  );
+
+}
+
+
+/* -------------------------
+   DOWNLOAD
+------------------------- */
+
+function downloadCode(){
+
+  const text = editor.value;
+
+  if(!text){
+
+    showStatus("Nothing to download");
+
+    return;
+  }
+
+  const blob =
+    new Blob(
+      [text],
+      {type:"text/plain;charset=utf-8"}
+    );
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const a =
+    document.createElement("a");
+
+  a.href = url;
+
+  a.download =
+    "large-code.txt";
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+  URL.revokeObjectURL(url);
+
+  showStatus(
+    "✓ CODE DOWNLOADED"
+  );
+
+}
+
+
+/* -------------------------
+   CLEAR
+------------------------- */
+
+function clearCode(){
+
   editor.value = "";
 
-  updateStats();
+  parts = [];
 
-  editor.focus();
+  currentPart = 0;
+
+  partBox.classList.remove("show");
+
+  updateStats();
 
   showStatus(
     "✓ CODE CLEARED"
@@ -395,11 +594,18 @@ function clearCode(){
 }
 
 
+/* -------------------------
+   STATUS
+------------------------- */
+
 function showStatus(message){
 
-  statusBox.textContent = message;
+  statusBox.textContent =
+    message;
 
-  clearTimeout(window.statusTimer);
+  clearTimeout(
+    window.statusTimer
+  );
 
   window.statusTimer =
     setTimeout(function(){
