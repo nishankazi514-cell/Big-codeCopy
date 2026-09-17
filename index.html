@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Code Copier</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Big Code Copier</title>
 
 <style>
 *{
@@ -13,17 +13,20 @@
 }
 
 body{
-  background:#0b0d12;
+  background:#080a0f;
   color:#fff;
   font-family:Arial,sans-serif;
   min-height:100vh;
 }
 
 .header{
-  padding:18px 15px;
-  background:#11141c;
-  border-bottom:1px solid #252936;
+  background:#11151e;
+  border-bottom:1px solid #292f3c;
+  padding:18px 14px;
   text-align:center;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
 
 .header h1{
@@ -31,79 +34,101 @@ body{
 }
 
 .header p{
-  color:#8d94a5;
-  font-size:13px;
-  margin-top:5px;
+  color:#8992a5;
+  font-size:12px;
+  margin-top:6px;
 }
 
 .container{
   width:100%;
-  max-width:1000px;
+  max-width:1100px;
   margin:auto;
-  padding:15px;
+  padding:14px;
 }
 
 .toolbar{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
   margin-bottom:12px;
 }
 
 button{
   border:0;
-  border-radius:9px;
-  padding:12px 17px;
-  color:white;
+  border-radius:10px;
+  padding:13px 10px;
+  color:#fff;
+  font-size:14px;
   font-weight:bold;
   cursor:pointer;
-  font-size:14px;
-}
-
-.copy{
-  background:#1677ff;
-}
-
-.select{
-  background:#343946;
-}
-
-.clear{
-  background:#d93636;
 }
 
 button:active{
   transform:scale(.97);
 }
 
-.editor-box{
-  background:#11141c;
-  border:1px solid #292e3a;
-  border-radius:12px;
-  overflow:hidden;
+.copy{
+  background:#1677ff;
 }
 
-.editor-top{
-  height:42px;
+.paste{
+  background:#673ab7;
+}
+
+.select{
+  background:#343a48;
+}
+
+.clear{
+  background:#d9363e;
+}
+
+.editor-box{
+  border:1px solid #292f3c;
+  border-radius:13px;
+  overflow:hidden;
+  background:#0e1117;
+}
+
+.editor-head{
+  height:43px;
+  background:#171b24;
+  border-bottom:1px solid #292f3c;
   display:flex;
   align-items:center;
+  justify-content:space-between;
   padding:0 13px;
-  background:#171a23;
-  border-bottom:1px solid #292e3a;
-  color:#9da4b5;
-  font-size:13px;
+}
+
+.editor-title{
+  color:#aeb6c6;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.dot{
+  display:flex;
+  gap:5px;
+}
+
+.dot span{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#555d6d;
 }
 
 textarea{
   display:block;
   width:100%;
-  min-height:65vh;
+  height:68vh;
+  min-height:450px;
   resize:vertical;
   border:0;
   outline:0;
-  background:#0e1117;
-  color:#e8ecf3;
   padding:16px;
+  background:#0b0e14;
+  color:#edf1f7;
   font-family:Consolas,Monaco,monospace;
   font-size:14px;
   line-height:1.6;
@@ -111,72 +136,131 @@ textarea{
 }
 
 textarea::selection{
-  background:#245aa5;
+  background:#245a9f;
 }
 
-.stats{
+.info{
   display:flex;
-  gap:20px;
-  padding:12px 2px;
-  color:#9299aa;
-  font-size:13px;
+  justify-content:space-between;
+  gap:10px;
+  padding:11px 2px;
+  color:#8992a5;
+  font-size:12px;
 }
 
 .status{
-  text-align:center;
   min-height:20px;
-  color:#49d17d;
+  text-align:center;
+  color:#4dde83;
   font-size:13px;
-  margin-top:5px;
+  font-weight:bold;
+  margin:3px 0 8px;
+}
+
+.tip{
+  color:#687184;
+  text-align:center;
+  font-size:11px;
+  line-height:1.5;
+  padding:5px 10px 15px;
+}
+
+@media(min-width:700px){
+  .toolbar{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  textarea{
+    font-size:15px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h1>📋 Code Copier</h1>
-  <p>Paste, edit and copy large code easily</p>
-</div>
+<header class="header">
+  <h1>📋 Big Code Copier</h1>
+  <p>Paste large code • Copy everything • Fast & simple</p>
+</header>
 
-<div class="container">
+<main class="container">
 
   <div class="toolbar">
-    <button class="copy" onclick="copyCode()">📋 COPY ALL</button>
-    <button class="select" onclick="selectAllCode()">SELECT ALL</button>
-    <button class="clear" onclick="clearCode()">CLEAR</button>
+
+    <button class="copy" onclick="copyAll()">
+      📋 COPY ALL
+    </button>
+
+    <button class="paste" onclick="pasteCode()">
+      📥 PASTE
+    </button>
+
+    <button class="select" onclick="selectAllCode()">
+      ☑ SELECT ALL
+    </button>
+
+    <button class="clear" onclick="clearCode()">
+      🗑 CLEAR
+    </button>
+
   </div>
 
-  <div class="editor-box">
+  <section class="editor-box">
 
-    <div class="editor-top">
-      CODE EDITOR
+    <div class="editor-head">
+
+      <div class="editor-title">
+        CODE EDITOR
+      </div>
+
+      <div class="dot">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
     </div>
 
     <textarea
       id="code"
       spellcheck="false"
-      placeholder="Paste your HTML, CSS, JavaScript, Python or any other code here..."
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      placeholder="Paste your large HTML, CSS, JavaScript, Python or any code here..."
       oninput="updateStats()"
     ></textarea>
 
+  </section>
+
+  <div class="info">
+
+    <span>
+      Lines: <b id="lines">0</b>
+    </span>
+
+    <span>
+      Characters: <b id="chars">0</b>
+    </span>
+
   </div>
 
-  <div class="stats">
-    <span>Lines: <b id="lines">0</b></span>
-    <span>Characters: <b id="chars">0</b></span>
+  <div id="status" class="status"></div>
+
+  <div class="tip">
+    Your code stays in this page unless you copy or save it yourself.
   </div>
 
-  <div class="status" id="status"></div>
-
-</div>
+</main>
 
 <script>
 
 const editor = document.getElementById("code");
 const lines = document.getElementById("lines");
 const chars = document.getElementById("chars");
-const statusText = document.getElementById("status");
+const statusBox = document.getElementById("status");
+
 
 function updateStats(){
 
@@ -187,52 +271,114 @@ function updateStats(){
   if(text.length === 0){
     lines.textContent = 0;
   }else{
-    lines.textContent = text.split(/\r\n|\r|\n/).length;
+    lines.textContent =
+      text.split(/\r\n|\r|\n/).length;
   }
+
 }
 
-async function copyCode(){
+
+async function copyAll(){
 
   const text = editor.value;
 
   if(!text){
+
     showStatus("Nothing to copy");
+
     return;
   }
+
 
   try{
 
     await navigator.clipboard.writeText(text);
 
-    showStatus("✓ Full code copied successfully");
+    showStatus(
+      "✓ ALL CODE COPIED"
+    );
 
   }catch(error){
 
     editor.focus();
+
     editor.select();
 
     try{
+
       document.execCommand("copy");
-      showStatus("✓ Full code copied successfully");
+
+      showStatus(
+        "✓ ALL CODE COPIED"
+      );
+
     }catch(e){
-      showStatus("Copy failed. Please select the code manually.");
+
+      showStatus(
+        "Copy failed — use SELECT ALL"
+      );
+
     }
 
   }
 
 }
 
+
+async function pasteCode(){
+
+  try{
+
+    const text =
+      await navigator.clipboard.readText();
+
+    if(!text){
+
+      showStatus("Clipboard is empty");
+
+      return;
+    }
+
+    editor.value = text;
+
+    updateStats();
+
+    showStatus(
+      "✓ CODE PASTED"
+    );
+
+  }catch(error){
+
+    showStatus(
+      "Tap the editor and use Paste"
+    );
+
+    editor.focus();
+
+  }
+
+}
+
+
 function selectAllCode(){
 
   editor.focus();
+
   editor.select();
 
-  showStatus("All code selected");
+  showStatus(
+    "✓ ALL CODE SELECTED"
+  );
+
 }
+
 
 function clearCode(){
 
-  if(editor.value.length === 0){
+  if(!editor.value){
+
+    showStatus("Already empty");
+
     return;
   }
 
@@ -242,19 +388,28 @@ function clearCode(){
 
   editor.focus();
 
-  showStatus("Code cleared");
+  showStatus(
+    "✓ CODE CLEARED"
+  );
+
 }
+
 
 function showStatus(message){
 
-  statusText.textContent = message;
+  statusBox.textContent = message;
 
   clearTimeout(window.statusTimer);
 
-  window.statusTimer = setTimeout(function(){
-    statusText.textContent = "";
-  },2500);
+  window.statusTimer =
+    setTimeout(function(){
+
+      statusBox.textContent = "";
+
+    },2500);
+
 }
+
 
 updateStats();
 
